@@ -9,7 +9,16 @@ CRT_BASE_PATH="/usr/syno/etc/certificate"
 #CRT_BASE_PATH="/Users/carl/Downloads/certificate"
 ACME_BIN_PATH=${BASE_ROOT}/acme.sh
 TEMP_PATH=${BASE_ROOT}/temp
-CRT_PATH_NAME=`cat ${CRT_BASE_PATH}/_archive/DEFAULT`
+
+TMP_STR="$2"
+if [ -z "$TMP_STR" ]; then
+    CRT_PATH_NAME=`cat ${CRT_BASE_PATH}/_archive/DEFAULT`
+fi
+
+if [ -n "$TMP_STR" ]; then
+    CRT_PATH_NAME=$TMP_STR
+fi
+# CRT_PATH_NAME=`cat ${CRT_BASE_PATH}/_archive/DEFAULT`
 CRT_PATH=${CRT_BASE_PATH}/_archive/${CRT_PATH_NAME}
 
 backupCrt () {
@@ -43,7 +52,7 @@ installAcme () {
 generateCrt () {
   echo 'begin generateCrt'
   cd ${BASE_ROOT}
-  source config
+  source ./config
   echo 'begin updating default cert by acme.sh tool'
   source ${ACME_BIN_PATH}/acme.sh.env
   ${ACME_BIN_PATH}/acme.sh --issue --dns ${DNS} --dnssleep ${DNS_SLEEP} -d "${DOMAIN}" -d "*.${DOMAIN}"
@@ -67,7 +76,7 @@ reloadWebService () {
   echo 'begin reloadWebService'
   echo 'reloading new cert...'
   /usr/syno/etc/rc.sysv/nginx.sh reload
-  echo 'done reloadWebService'  
+  echo 'done reloadWebService'
 }
 
 revertCrt () {
